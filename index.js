@@ -1,5 +1,6 @@
 const ChangesStream = require('changes-stream');
 const Request = require('request');
+const Normalize = require('normalize-registry-metadata');
 
 const db = 'https://replicate.npmjs.com';
 
@@ -15,7 +16,7 @@ Request.get(db, function(err, req, body) {
       process.exit(0);
     }
     if (change.doc.name) {
-      console.log(change.doc);
+      console.log(Normalize(change.doc));
     }
   });
 });

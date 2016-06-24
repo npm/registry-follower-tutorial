@@ -16,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/ashleygwilliams/registry-follower-tutorial/issues"
   },
-  "homepage": "https://github.com/ashleygwilliams/registry-follower-tutorial#readme"
+  "homepage": "https://github.com/ashleygwilliams/registry-follower-tutorial#readme",
+  "dependencies": {
+    "changes-stream": "^1.1.0",
+    "request": "^2.72.0"
+  }
 }

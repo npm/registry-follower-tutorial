@@ -389,6 +389,64 @@ you need to restart the program.
 
 [`concurrent-couch-follower`]: https://github.com/npm/concurrent-couch-follower
 
+## a few notes on performance
+
+The vast majority of useful registry followers won't ever have
+any kind of follower-side performance problem.  In keeping with
+[long-established wisdom][wisdom], you probably shouldn't even _think_
+about this section until you hit a bottleneck in use and confirm it
+by measurement.  Logging Node.js [cpuUsage()] and [memoryUsage()],
+[heap analysis], and the built-in [profiler] are great places to start.
+
+[cpuUsage()]: https://nodejs.org/api/process.html#process_process_cpuusage_previousvalue
+
+[memoryUsage()]: https://nodejs.org/api/process.html#process_process_memoryusage
+
+[heap analysis]: https://www.npmjs.com/package/heapdump
+
+[profiler]: https://nodejs.org/en/docs/guides/simple-profiling/
+
+[wisdom]: http://c2.com/cgi/wiki?PrematureOptimization
+
+Under the hood, libraries like [`changes-stream`] `GET` the
+registry's CouchDB-style HTTPS replication endpoint, which streams
+newline-deliminted JSON objects, one per database update, over
+long-lived responses.  These are the object chunks you receive from
+the stream.
+
+Most registry update objects are manageably small, but the deviation
+is great, with a few updates weighing in close to 5 MB.  The bulk
+of this is often (highly repetitive) `README` file strings, one
+per version in `chunk.doc.versions`.  Some packages have thousands
+of versions.  And every once in a while, some fiendish jokester
+publishes a "novelty" package that "depends on" every other package
+in the registry, as if they were the first to think of it.
+
+Especially if you're using a pipeline of many object-mode streams
+to process the chunks, you may have high memory usage with Node.js'
+default maximum stream internal buffer size, `highWaterMark`, of 16.
+Multiple buffers of 16 objects each, plus lingering data not yet
+picked up by the garbage collector, can eat your RAM lunch quick.
+To reduce this number:
+
+```
+new ChangesStream({
+  db: 'https://replicate.npmjs.com',
+  include_docs: true,
+  highWaterMark: 4
+})
+```
+
+Most tried-and-true stream packages, like those in the [Mississippi
+Streams Collection][mississippi], take optional options-object
+arguments that get passed along to the core [readable-stream]
+constructors.  You can set `{highWaterMark: Number}` in those
+arguments.
+
+[mississippi]: https://www.npmjs.com/package/mississippi
+
+[readable-stream]: https://www.npmjs.com/package/readable-stream
+
 ## go forth and make something awesome!
 
 We're seriously excited about what you'll build. Please share with us on

@@ -361,7 +361,7 @@ npm install normalize-registry-metadata --save
 Next, we require in our `index.js`:
 
 ```
-3  const Normalize = require(`normalize-registry-metadata`);
+3  const Normalize = require('normalize-registry-metadata');
 ```
 
 Lastly, let's call `Normalize()` on the `change` data before we log it to the console:

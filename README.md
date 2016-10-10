@@ -64,7 +64,7 @@ Our application is going to depend on a couple super helpful npm packages:
 
 To install these packages we'll type:
 
-```
+```sh
 npm install changes-stream request --save
 ```
 ... which will add both of our dependencies to our `package.json`.
@@ -86,7 +86,7 @@ The first thing we'll do inside our `index.js` is use the `changes-stream`
 package to create a new `ChangesStream` to listen to listen to the npm
 registry. To do so we'll write:
 
-```
+```js
 1  const ChangeStream = require('changes-stream');
 2 
 3  const db = 'https://replicate.npmjs.com';
@@ -106,7 +106,7 @@ Let's talk about what's happening here:
 Now that we've created a changes stream, let's listen to it! To do this, we
 write:
 
-```
+```js
 9  changes.on('data', function(change) {
 10   console.log(change);
 11 });
@@ -114,14 +114,14 @@ write:
 
 Let's test it out: Run this application by typing:
 
-```
+```sh
 node index.js
 ```
 
 If everything is working correctly, you'll see something like this start
 **streaming** through your console:
 
-```
+```sh
 { seq: 445,
   id: 'CompoundSignal',
   changes: [ { rev: '5-a0695c30fdaa3471246ef0cd6c8a476d' } ] }
@@ -155,13 +155,13 @@ So our follower works! But it's not that great right now because we don't
 really have all that much interesting data. Let's look at what we have
 right now:
 
-```
+```sh
 { seq: 446,
   id: 'amphibian',
   changes: [ { rev: '5-1a864e76d844e90bf6c63cb94303b593' } ] }
 ```
 
-- `seq`: the packages order in the sequence of change events
+- `seq`: the package's order in the sequence of change events
 - `id`: the name of the `package` (sometimes this is something else! we'll
   get to that in a bit tho, it doesn't matter too much right now.)
 - `changes`: an array containing a single object, with a single key `rev`
@@ -179,7 +179,7 @@ object we received from the stream.
 
 The two changes we make to our code look like this:
 
-```
+```js
 5  var changes = new ChangesStream({
 6    db: db,
 7    include_docs: true            // <- this is the thing we're adding
@@ -217,7 +217,7 @@ different pieces of data you can get from this stream. You may notice that
 some nested structures appear like `[Object]` in your console. You can
 print those out by adding `JSON.stringify` to your log, like this:
 
-```
+```js
 console.log(JSON.stringify (change.doc,null,' '));
 ```
 
@@ -225,10 +225,10 @@ console.log(JSON.stringify (change.doc,null,' '));
 like `[Object]`).
 
 Note: you'll have to `ctrl-C` out of your application every time you run
-it. It's still a neverending stream! In the next section we'll explain how
+it. It's still a never ending stream! In the next section we'll explain how
 to make it stop. 
 
-## a neverending stream
+## a never ending stream
 
 As we mentioned in the previous section, our follower currently won't ever
 stop! Let's dive a little deeper into why that's the case:
@@ -250,7 +250,7 @@ https:/replicate.npmjs.com
 
 ...you should see something that looks like this:
 
-```
+```json
 {
   "db_name": "registry",
   "doc_count": 345391,
@@ -282,7 +282,7 @@ db up until the time we accessed the `update_seq` value.
 That was a lot of words, let's take a look at what this would look like in
 code.
 
-```
+```js
 2  const Request = require('request');
 ...
 11 Request.get(db, function(err, req, body) {        // <- make a request to the db
@@ -299,8 +299,8 @@ code.
 Let's walk through what this code is doing:
 
 - On line 2, we are require the `request` package
-- On line 10, we are making a request to our db using the `request` package
-- On line 11, we parse the response from our request and grab the `update_seq`
+- On line 11, we are making a request to our db using the `request` package
+- On line 12, we parse the response from our request and grab the `update_seq`
   value.
 - On line 13, on every `data` event, we check to see if the `change.seq`
   value we get is greater than or equal to `update_seq`. Why `>=` and
@@ -308,7 +308,7 @@ Let's walk through what this code is doing:
   a good chance it will change while we are following it! Using `>=` means that
   we can account for the change that happens while our application is running. 
 - On line 15, we end our program. We send the value `0` to `process.exit` to
-  indicate thaat we are ending the program successfully, i.e. not with an error.
+  indicate that we are ending the program successfully, i.e. not with an error.
 
 Ok! Given this code, our application will now run for all the current changes in the
 registry and then exit. Take a moment and give it a go! Note: There are a lot of
@@ -316,7 +316,7 @@ changes, so this can take up to an hour.
 
 ## clean up
 
-So our follower is pretty much done! However, there's a few things that are quite
+So our follower is pretty much done! However, there's a few things that ain't quite
 right about our data. Let's do that now so we can finish up.
 
 Firstly, remember the `id`/`_id` key we recieve from our changes stream? We had
@@ -337,7 +337,7 @@ by checking if it has a `name`. We can accomplish this by checking if
 change.doc.name` has a value before we do anything with the `change` data. In our
 code, this looks like this:
 
-```
+```js
 ...
 17 if (change.doc.name) {             // <-- make sure the change is a change
 18   console.log(change.doc);
@@ -354,19 +354,19 @@ To do this, we'll add *one more* dependency to our application: [`normalize-regi
 
 First things first: let's install this package and save it to our `package.json`:
 
-```
+```sh
 npm install normalize-registry-metadata --save
 ```
 
 Next, we require in our `index.js`:
 
-```
+```js
 3  const Normalize = require(`normalize-registry-metadata`);
 ```
 
 Lastly, let's call `Normalize()` on the `change` data before we log it to the console:
 
-```
+```js
 ...
 18   console.log(Normalize(change.doc));        // <-- we only have to change this line!
 ...

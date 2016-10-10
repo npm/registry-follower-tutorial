@@ -88,7 +88,6 @@ registry. To do so we'll write:
 
 ```js
 1  const ChangesStream = require('changes-stream');
->>>>>>> b7fb840572ce5270171dfe3f25a82eba4d4088da
 2 
 3  const db = 'https://replicate.npmjs.com';
 4 

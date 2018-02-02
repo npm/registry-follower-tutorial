@@ -380,7 +380,7 @@ complete code [here].
 ## forever follower
 
 Don't want to stop? Want to write a persistent follower? You can move
-foward with our app as it is currently written, however you'll likely have
+forward with our app as it is currently written, however you'll likely have
 a better experience replacing `changes-stream` with 
 [`concurrent-couch-follower`] which is safer for operations that may 
 require async (like a file write!). [`concurrent-couch-follower`] remembers

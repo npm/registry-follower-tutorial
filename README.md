@@ -288,7 +288,7 @@ code.
 11 Request.get(db, function(err, req, body) {        // <- make a request to the db
 12   var end_sequence = JSON.parse(body).update_seq; // <- grab the update_seq value
 13   changes.on('data', function(change) {
-14     if (change.seq >= end_sequence {               // <- if we're at the last change
+14     if (change.seq >= end_sequence) {               // <- if we're at the last change
 15       process.exit(0);                            // <- end the program successfully ("0")
 16     }
 17     console.log(change.doc);
@@ -380,7 +380,7 @@ complete code [here].
 ## forever follower
 
 Don't want to stop? Want to write a persistent follower? You can move
-foward with our app as it is currently written, however you'll likely have
+forward with our app as it is currently written, however you'll likely have
 a better experience replacing `changes-stream` with 
 [`concurrent-couch-follower`] which is safer for operations that may 
 require async (like a file write!). [`concurrent-couch-follower`] remembers

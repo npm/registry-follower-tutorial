@@ -319,7 +319,7 @@ changes, so this can take up to an hour.
 So our follower is pretty much done! However, there's a few things that ain't quite
 right about our data. Let's do that now so we can finish up.
 
-Firstly, remember the `id`/`_id` key we recieve from our changes stream? We had
+Firstly, remember the `id`/`_id` key we receive from our changes stream? We had
 identified that as being the name of the package, but that was a generalization.
 It turns out that there are actually 2 types of things in the changes db: changes
 and "design docs".
